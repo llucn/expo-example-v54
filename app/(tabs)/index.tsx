@@ -1,5 +1,6 @@
 import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { Button, Platform, StyleSheet } from 'react-native';
 
 import { HelloWave } from '@/components/hello-wave';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
@@ -7,7 +8,32 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Link } from 'expo-router';
 
+import * as ImagePicker from 'expo-image-picker';
+
 export default function HomeScreen() {
+	const [ path, setPath ] = useState<string | null>();
+	const [ mimeType, setMimeType ] = useState<string | null>();
+	const [ base64, setBase64 ] = useState<string | null>();
+
+	const pickImage = async () => {
+		// No permissions request is necessary for launching the image library
+		let result = await ImagePicker.launchImageLibraryAsync({
+			mediaTypes: ['images', 'videos'],
+			allowsEditing: true,
+			aspect: [4, 3],
+			quality: 0.2,
+			base64: true,
+		});
+
+		console.log(result);
+
+		if (!result.canceled) {
+			setPath(result.assets[0].uri);
+			setMimeType(result.assets[0].mimeType);
+			setBase64(result.assets[0].base64);
+		}
+	};
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -17,6 +43,18 @@ export default function HomeScreen() {
           style={styles.reactLogo}
         />
       }>
+      <ThemedView style={styles.titleContainer}>
+        <Button title="Pick Image" onPress={() => pickImage()} />
+      </ThemedView>
+      <ThemedView>
+        {base64 && <Image
+          style={{ width: 200, height: 200, }}
+          source={{
+            uri: `data:${mimeType};base64,${base64}`,
+          }}
+        />}
+        <ThemedText>Path: {path}</ThemedText>
+      </ThemedView>
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Welcome!</ThemedText>
         <HelloWave />
