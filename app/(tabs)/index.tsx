@@ -8,6 +8,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Link } from 'expo-router';
 
+import PhotoEditor from '@deltasoft365/expo-photo-editor';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function HomeScreen() {
@@ -34,6 +35,25 @@ export default function HomeScreen() {
 		}
 	};
 
+	const editImage = async () => {
+		let result = await PhotoEditor.open({
+			path: path ?? '',
+			stickers: [
+				'https://cdn-icons-png.flaticon.com/512/5272/5272912.png',
+				'https://cdn-icons-png.flaticon.com/512/5272/5272913.png',
+				'https://cdn-icons-png.flaticon.com/512/5272/5272916.png',
+			],
+			base64: true,
+		});
+
+		console.log(result);
+
+		if (result) {
+			setPath(result.path?.toString());
+			setBase64(result.base64?.toString());
+		}
+	};
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -45,6 +65,7 @@ export default function HomeScreen() {
       }>
       <ThemedView style={styles.titleContainer}>
         <Button title="Pick Image" onPress={() => pickImage()} />
+        <Button title="Edit Image" onPress={() => editImage()} disabled={!!!base64} />
       </ThemedView>
       <ThemedView>
         {base64 && <Image
